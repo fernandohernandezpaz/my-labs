@@ -1,0 +1,5 @@
+services:
+  redis_race_condition:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
