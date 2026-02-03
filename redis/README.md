@@ -20,3 +20,6 @@ Redis is an open-source, in-memory data structure store used as a database, cach
 
 ### 5. What is the "Redlock" algorithm?
 **Answer:** It is an algorithm designed by the Redis author to implement a distributed lock manager that is more reliable than a single-instance lock, especially in distributed environments.
+
+### 6. Can Redis be used as a primary NoSQL Database?
+**Answer:** Yes. With its complex data structures (Hashes, Sets, Sorted Sets) and durability features (AOF/RDB), Redis can act as a primary store for high-performance use cases like session management, leaderboards, and real-time user profiles. Unlike simple K-V stores, it allows for sophisticated modeling and secondary indexing.
