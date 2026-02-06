@@ -1,0 +1,25 @@
+{
+	"name": "react-example",
+	"private": true,
+	"version": "0.0.0",
+	"type": "module",
+	"scripts": {
+		"dev": "vite",
+		"build": "vite build",
+		"lint": "eslint .",
+		"preview": "vite preview"
+	},
+	"dependencies": {
+		"react": "^19.0.0",
+		"react-dom": "^19.0.0"
+	},
+	"devDependencies": {
+		"@types/react": "^19.0.0",
+		"@types/react-dom": "^19.0.0",
+		"@vitejs/plugin-react": "^4.3.4",
+		"babel-plugin-react-compiler": "19.0.0-beta-af1b7da-20250417",
+		"eslint": "^9.9.0",
+		"typescript": "^5.5.3",
+		"vite": "^6.0.0"
+	}
+}
