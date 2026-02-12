@@ -1,0 +1,12 @@
+services:
+  sql_lab_db:
+    container_name: sql_lab_db
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: optimization_lab
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./pg_store:/var/lib/postgresql/data
