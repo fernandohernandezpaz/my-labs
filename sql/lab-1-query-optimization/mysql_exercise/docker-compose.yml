@@ -1,0 +1,14 @@
+services:
+  sql_lab_db:
+    container_name: sql_lab_db
+    image: mysql:9.1.0
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: "false"
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+      MYSQL_DATABASE: optimization_lab
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./mysql_store:/var/lib/mysql
