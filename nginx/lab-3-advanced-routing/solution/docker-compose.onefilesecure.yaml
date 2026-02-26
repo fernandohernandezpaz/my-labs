@@ -1,0 +1,65 @@
+services:
+
+  django_app:
+    container_name: django_app
+    build:
+      context: .
+      dockerfile: infra/python/Dockerfile
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    volumes:
+      - ./staticfiles:/app/staticfiles
+      - ./mediafiles:/app/mediafiles
+    depends_on:
+      - django_db
+    networks:
+      - django_network
+
+  django_db:
+    container_name: django_db
+    image: postgres:17-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+      POSTGRES_DB: ${DB_NAME:-postgres}
+    networks:
+      - django_network
+
+  nginx_proxy:
+    image: nginx:alpine
+    container_name: nginx_proxy
+    ports:
+      - "80:80"
+      - "443:443" # 💡 CRITICAL: Added port 443 for HTTPS traffic
+    volumes:
+      # Mount the SECURE config file
+      - ./infra/nginx/one_file/nginx.secure.conf:/etc/nginx/nginx.conf:ro
+
+      # Static and Media files
+      - ./staticfiles:/usr/share/nginx/html/static:ro
+      - ./mediafiles:/usr/share/nginx/html/media:ro # FIXED path typo (/usr instead of /user)
+
+      # --- SSL Mappings (Blog) ---
+      - ./infra/nginx/ssl/blog_site/selfsigned.crt:/etc/nginx/ssl/blog_site/cert.crt:ro
+      - ./infra/nginx/ssl/blog_site/blogssl.key:/etc/nginx/ssl/blog_site/key.key:ro
+
+      # --- SSL Mappings (Shop) ---
+      - ./infra/nginx/ssl/shop_site/selfsigned.crt:/etc/nginx/ssl/shop_site/cert.crt:ro
+      - ./infra/nginx/ssl/shop_site/shopssl.key:/etc/nginx/ssl/shop_site/key.key:ro
+
+    depends_on:
+      - django_app
+    networks:
+      - django_network
+
+#volumes:
+# static_files:
+# media_files:
+
+networks:
+  django_network:
+    driver: bridge

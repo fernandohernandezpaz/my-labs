@@ -1,0 +1,59 @@
+services:
+  app_db_postgres:
+    image: postgres:17-alpine
+    container_name: app_db_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: products_db
+    ports:
+      - '5432:5432'
+    volumes:
+      - ./infra/db:/docker-entrypoint-initdb.d
+      - postgres_data:/var/lib/postgresql/data
+
+  app_backend_dev:
+    build:
+      context: .
+      dockerfile: ./infra/node/backend/Dockerfile.dev
+      args:
+        - NODE_ENV=development
+        - DB_HOST=app_db_postgres
+        - DB_PORT=5432
+    container_name: app_backend_dev
+    depends_on:
+      - app_db_postgres
+    env_file:
+      - ./backend/.env
+    environment:
+      DB_HOST: app_db_postgres
+      DB_PORT: 5432
+      DB_NAME: products_db
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+    ports:
+      - '3000:3000'
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+  
+  app_frontend_dev:
+    build:
+      context: .
+      dockerfile: ./infra/node/frontend/Dockerfile.dev
+      args:
+        - NODE_ENV=development
+    container_name: app_frontend_dev
+    depends_on:
+      - app_backend_dev
+    env_file:
+      - ./frontend/.env
+    ports:
+      - '5371:5371'
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+
+volumes:
+  postgres_data:

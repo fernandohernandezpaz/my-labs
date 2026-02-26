@@ -1,0 +1,22 @@
+services:
+  fastapi_backend:
+    build: .
+    container_name: fastapi_backend
+    networks:
+      - cache_lab_net
+
+  nginx_cache_proxy:
+    image: nginx:alpine
+    container_name: nginx_cache_proxy
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - fastapi_backend
+    networks:
+      - cache_lab_net
+
+networks:
+  cache_lab_net:
+    driver: bridge

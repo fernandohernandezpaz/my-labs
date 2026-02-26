@@ -1,0 +1,52 @@
+services:
+
+  django_app:
+    container_name: django_app
+    build:
+      context: .
+      dockerfile: infra/python/Dockerfile
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    volumes:
+      # Share Django's collected static files with Nginx
+      - ./staticfiles:/app/staticfiles
+    depends_on:
+      - django_db
+    networks:
+      - django_network
+
+  django_db:
+    container_name: django_db
+    image: postgres:17-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+      POSTGRES_DB: ${DB_NAME:-postgres}
+    networks:
+      - django_network
+
+  nginx_proxy:
+    image: nginx:alpine
+    container_name: nginx_proxy
+    ports:
+      - "80:80"
+    volumes:
+      - ./infra/nginx/one_file/nginx.conf:/etc/nginx/nginx.conf
+      # Mount the same static files volume so Nginx can serve them
+      - ./staticfiles:/usr/share/nginx/html/static
+    depends_on:
+      - django_app
+    networks:
+      - django_network
+
+volumes:
+  static_files:
+
+
+networks:
+  django_network:
+    driver: bridge
