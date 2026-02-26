@@ -1,0 +1,6 @@
+1. Install openssl(only when this tool does not exists in our system)
+2. Create a folder for each site ssl
+3. Run the next command
+    3.1 openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout ./infra/nginx/ssl/selfsigned.key \
+        -out ./infra/nginx/ssl/selfsigned.crt -subj "/C=US/ST=Local/L=Local/O=Development/CN={domain}"
+    3.2 replace the {domain} with the domain name of the sites

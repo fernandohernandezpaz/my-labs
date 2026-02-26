@@ -1,0 +1,22 @@
+FROM node:22-alpine
+
+ARG NODE_ENV
+ARG DB_HOST=db_prod_postgres
+ARG DB_PORT=5432
+
+ENV NODE_ENV=${NODE_ENV:-production}
+
+RUN apk add --no-cache postgresql-client && \
+    npm install -g pnpm
+
+WORKDIR /app
+
+COPY ./backend .
+
+RUN pnpm install --frozen-lockfile
+
+RUN pnpm build
+
+EXPOSE 3000
+
+CMD sh -c "until pg_isready -h $DB_HOST -p $DB_PORT; do echo 'Waiting for PostgreSQL at $DB_HOST:$DB_PORT...'; sleep 2; done; pnpm run db:migrate && pnpm run start:prod"

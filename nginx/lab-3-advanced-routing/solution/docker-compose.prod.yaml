@@ -1,0 +1,60 @@
+services:
+
+  django_app:
+    container_name: django_app
+    build:
+      context: .
+      dockerfile: infra/python/Dockerfile.prod
+    env_file:
+      - .env
+    volumes:
+      # Share Django's collected static & media files
+      - ./staticfiles:/app/staticfiles
+      - ./mediafiles:/app/mediafiles
+    depends_on:
+      - django_db
+    networks:
+      - django_network
+
+  django_db:
+    container_name: django_db
+    image: postgres:17-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+      POSTGRES_DB: ${DB_NAME:-postgres}
+    networks:
+      - django_network
+
+  nginx_proxy:
+    image: nginx:alpine
+    container_name: nginx_proxy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      # Mount the SECURE config file
+      - ./infra/nginx/multi_instances/nginx.conf:/etc/nginx/nginx.conf:ro
+      # Mount the SECURE sites-enabled directory
+      - ./infra/nginx/sites-enabled/blog.example.localsecure.conf:/etc/nginx/sites-enabled/blog.example.local.conf:ro
+      - ./infra/nginx/sites-enabled/shop.example.localsecure.conf:/etc/nginx/sites-enabled/shop.example.local.conf:ro
+      # Mount shared volumes for static/media serving
+      - ./staticfiles:/usr/share/nginx/html/static:ro
+      - ./mediafiles:/usr/share/nginx/html/media:ro
+      # SSL Mapping
+      # --- (Blog) ---
+      - ./infra/nginx/ssl/blog_site/selfsigned.crt:/etc/nginx/ssl/blog_site/cert.crt:ro
+      - ./infra/nginx/ssl/blog_site/blogssl.key:/etc/nginx/ssl/blog_site/key.key:ro
+      # --- (Shop) ---
+      - ./infra/nginx/ssl/shop_site/selfsigned.crt:/etc/nginx/ssl/shop_site/cert.crt:ro
+      - ./infra/nginx/ssl/shop_site/shopssl.key:/etc/nginx/ssl/shop_site/key.key:ro
+    depends_on:
+      - django_app
+    networks:
+      - django_network
+
+networks:
+  django_network:
+    driver: bridge

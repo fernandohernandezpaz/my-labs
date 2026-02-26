@@ -1,0 +1,17 @@
+FROM node:22-alpine
+
+ARG NODE_ENV=development
+
+ENV NODE_ENV=${NODE_ENV:-development}
+
+RUN npm install -g pnpm vite
+
+WORKDIR /app
+
+COPY ./frontend .
+
+RUN pnpm install --frozen-lockfile
+
+EXPOSE 5371
+
+CMD ["pnpm", "dev", "--host", "0.0.0.0", "--port", "5371"]
