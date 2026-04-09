@@ -1,0 +1,10 @@
+name: redis_stream_lab
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.13.12
+  - pip:
+    - redis==7.1.0
+    - ruff==0.14.14
+  
