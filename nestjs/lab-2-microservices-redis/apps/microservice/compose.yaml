@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  microservice-redis:
+    image: redis:7-alpine
+    container_name: microservice-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - microservice-network
+
+networks:
+  microservice-network:
+    driver: bridge

@@ -1,0 +1,15 @@
+services:
+  db:
+    image: postgres:17-alpine
+    container_name: erp-postgres
+    environment:
+      POSTGRES_USER: your_user
+      POSTGRES_PASSWORD: your_password
+      POSTGRES_DB: erp_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - erp-db-data:/var/lib/postgresql/data
+
+volumes:
+  erp-db-data:
