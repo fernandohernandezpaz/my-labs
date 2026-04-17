@@ -1,0 +1,39 @@
+services:
+  etl_app:
+    build:
+      context: .
+      dockerfile: docker/python/Dockerfile
+    volumes:
+      - .:/app
+    environment:
+      - SPARK_MASTER_URL=spark://spark-master:7077
+    env_file:
+      - .env
+    depends_on:
+      - spark-master
+
+  spark-master:
+    image: apache/spark:3.5.1
+    command: >
+      bash -c "/opt/spark/sbin/start-master.sh && tail -f /dev/null"
+    environment:
+      - SPARK_MODE=master
+    volumes:
+      - ./data:/app/data
+    ports:
+      - '8080:8080'
+      - '7077:7077'
+
+  spark-worker:
+    image: apache/spark:3.5.1
+    command: >
+      bash -c "/opt/spark/sbin/start-worker.sh spark://spark-master:7077 && tail -f /dev/null"
+    volumes:
+      - ./data:/app/data
+    environment:
+      - SPARK_MODE=worker
+      - SPARK_MASTER_URL=spark://spark-master:7077
+      - SPARK_WORKER_MEMORY=1G
+      - SPARK_WORKER_CORES=1
+    depends_on:
+      - spark-master

@@ -1,0 +1,10 @@
+name: spark-analyzer
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.12.13
+  - openjdk=21
+  - pip:
+    - -r requirements.txtss
+  
